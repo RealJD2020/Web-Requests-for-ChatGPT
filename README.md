@@ -64,6 +64,7 @@ Successful operation.
       - `page_context` (string): The context of the current page (chunk) in relation to the total number of pages (chunks) of response data for a given job ID. For example, '2/7' means this is the 2nd chunk out of a total of 7 chunks.
 
 ## Example Usage
+If you are on ChatGPT and/or using the Plugins model, with the plugin installed, then usage is as simple as chatting with GPT. GPT will intuitivey know when and how to use the available endpoints, and will handle all of the below request/response building and parsing automagically. However, for those who want to see what's happening under-the-hood, here you go:
 
 ### Scrape URL
 
