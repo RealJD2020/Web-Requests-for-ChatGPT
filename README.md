@@ -125,9 +125,7 @@ Content-Type: application/json
 
 ## Notes
 
-- The Web Request plugin allows users to scrape content
-
-and data from a URL, web page, or endpoint, as well as perform Google searches and retrieve search results.
+- The Web Request plugin allows users to scrape content and data from a URL, web page, or endpoint, as well as perform Google searches and retrieve search results.
 - The plugin supports various content formats, including HTML, XML, JSON, CSV, PDF, images, and plain text. The format of the response may vary based on the content type of the URL being scraped.
 - The plugin provides options for pagination, caching, and content sanitization. Users can specify the page number and page size for paginated responses, refresh the cache if needed, and choose whether to skip cleaning up HTML content.
 - The plugin uses an in-memory cache to improve performance. The cache age indicates the age of the cache in seconds since the content was last fetched.
