@@ -1,0 +1,112 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Web Request",
+    "version": "0.1.1",
+    "description": "A plugin to request content and other data from a URL and return the response data for a variety of formats, from which ChatGPT can parse and classify as needed to fulfill its task."
+  },
+  "paths": {
+    "/scrape_url": {
+      "post": {
+        "summary": "Scrape content/data from a URL, web page, or endpoint",
+        "operationId": "scrape_url",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "The URL to scrape or perform a Google search if 'is_search' is set to true. When is_search is set to true, the 'url' parameter will be treated as a search query for Google."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "The page number (of chunks) to retrieve, based on the page_size that was chosen (defaults to 5000). To request subsequent pages, increment the value of the 'page' parameter, and be sure to send job_id for which you are paginating. For example, to request the second page, set 'page' to 2.",
+                    "default": 1
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "description": "The maximum number of characters in each page (chunk).",
+                    "default": 5000
+                  },
+                  "is_search": {
+                    "type": "boolean",
+                    "description": "Indicates whether the request is a search query. If set to true, the 'url' parameter will be treated as a search query for Google.",
+                    "default": false
+                  },
+                  "follow_links": {
+                    "type": "boolean",
+                    "description": "Only relevant when 'is_search' is true. Indicates whether to return the content of the search result's underlying page or just the result's metadata.",
+                    "default": false
+                  },
+                  "num_results_to_scrape": {
+                    "type": "integer",
+                    "description": "Only relevant when 'is_search' is true. The number of search results to return. Default is 3."
+                  },
+                  "job_id": {
+                    "type": "string",
+                    "description": "The unique job ID for this request. The job ID is used to ensure consistency when requesting chunks from a URL that has been recently scraped. If not provided, a new job ID will be generated. It is recommended to include the same job ID when requesting subsequent chunks from the same URL to retrieve content from the cached snapshot of the original request."
+                  },
+                  "refresh_cache": {
+                    "type": "boolean",
+                    "description": "Indicates whether to refresh the cache for this request. If set to true, a new request will be made and the cache will be updated. The response may be retrieved from an in-memory cache to improve performance. The 'cache_age' property indicates the age of the cache in seconds since the content was last fetched.",
+                    "default": false
+                  },
+                  "no_strip": {
+                    "type": "boolean",
+                    "description": "Indicates whether to skip cleaning up HTML content. Use this flag if you want to preserve the original HTML structure, such as when looking for source code. When 'no_strip' is set to false (default), HTML content will be sanitized and certain tags (e.g., script and style tags) may be removed for security reasons.",
+                    "default": false
+                  }
+                },
+                "required": ["url"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Indicates whether the scraping operation was successful."
+                    },
+                    "content": {
+                      "type": "object",
+                      "description": "The scraped content from the URL or search results in various formats, including HTML, XML, JSON, CSV, PDF, images, and plain text. The format may vary based on the content type of the URL being scraped. ChatGPT should expect to receive content as a string, list, dictionary, or other appropriate data structure based on the content type. The content may be sanitized for brevity and safety."
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "An error message, if any. Possible error messages include 'Invalid URL', 'Invalid page or page_size', 'Invalid num_results_to_scrape', 'Unsupported content type: {content_type}', and 'Failed to fetch the content'. Often times adjusting paramters resolves these issues."
+                    },
+                    "has_more": {
+                      "type": "boolean",
+                      "description": "Indicates whether there are more chunks available for pagination after the current chunk. Increment previous 'page' number and include corresponding 'job_id' to request the next chunk."
+                    },
+                    "job_id": {
+                      "type": "string",
+                      "description": "The unique job ID for this request. The job ID is used to ensure consistency when requesting chunks from a URL that has been recently scraped. If not provided, a new job ID will be generated. It is recommended to include the same job ID when requesting subsequent chunks from the same URL to retrieve content from the cached snapshot of the original request."
+                    },
+                    "cache_age": {
+                      "type": "integer",
+                      "description": "The response may be retrieved from an in-memory cache to improve performance. The 'cache_age' property indicates the age of the cache in seconds since the content was originally fetched."
+                    },
+                    "page_context": {
+                      "type": "string",
+                      "description": "The context of the current page (chunk) in relation to the total number of pages (chunks) of response data for a give job ID. For example, '2/7' means this is the 2nd chunk out of a total of 7 chunks."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
