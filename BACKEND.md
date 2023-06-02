@@ -1,95 +1,198 @@
-# Web Requests - ChatGPT's Web Browser
+# 'Web Requests' :: ChaGPT's Web Browser
 
-The "Web Requests" module is a web browser implemented within ChatGPT that allows you to perform various web-related tasks such as scraping web content, parsing data, and executing HTTP requests. It is built using the Quart framework, which is an asynchronous web framework for Python.
+Web Requests is a versatile plugin for ChatGPT Plus subscribers that allows users to access and parse content from the web, overcoming the "September 2021 Knowledge Cutoff." The plugin is built as an API service layer backend using the Quart server and is accessible via the provided OpenAPI specification, specifically designed for ChatGPT's Plugins model.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Scrape URL Endpoint](#scrape-url-endpoint)
+- [Cache Management](#cache-management)
+- [Pagination](#pagination)
+- [Input Validation](#input-validation)
+- [Content Handling](#content-handling)
+- [Command Line Interface](#command-line-interface)
+- [OpenAPI Specification](#openapi-specification)
+- [Best Practices and Usage](#best-practices-and-usage)
 
 ## Features
 
-The "Web Requests" module provides the following features:
+- Scrape URLs and extract content
+- Perform Google searches and return search results
+- Follow links and extract content from search results
+- Cache results to reduce server load and improve response times
+- Paginate content to handle large amounts of data
+- Validate input parameters
+- Handle various content types, including HTML, XML, JSON, CSV, PDF, and images
+- Support for images and text-based files
+- Content processing for context preservation
+- User-friendly command line interface
 
-1. **Scraping URL**: You can scrape the content of a web page by providing the URL. The module retrieves the HTML content of the page, parses it, and returns the text content. It also supports pagination, allowing you to retrieve content in chunks.
+## Installation
 
-2. **Parsing Job**: You can parse the content of a previously scraped URL by providing the job ID. This feature is useful when you want to extract specific information from the scraped content using regular expressions (regex). You can define a regex pattern and the module will return the matched results.
+To install and run the plugin, you need to have Python 3.7 or higher installed on your system. The plugin uses the following libraries:
 
-3. **Google Search**: You can perform a Google search by providing a search query. The module uses the Google Custom Search JSON API to retrieve search results. You can specify the number of results to scrape and whether to follow the links in the search results.
+- Quart
+- httpx
+- BeautifulSoup
+- aiofiles
+- htmlmin
+- defusedxml
+- pdfminer
+- PIL (Pillow)
+- aioconsole
+- hypercorn
+- googlesearch
+- markdownify
 
-4. **Caching**: The module implements an in-memory cache to store previously scraped content and parsed results. This helps in reducing the load on external resources and improves response times for repeated requests. The cache is automatically cleaned every 15 minutes.
+Install the required libraries using the following command:
 
-5. **Error Handling**: The module handles various types of errors, including invalid URLs, invalid input parameters, network errors, and unsupported content types. It provides meaningful error messages to assist in troubleshooting.
+```bash
+pip install quart httpx beautifulsoup4 aiofiles htmlmin defusedxml pdfminer.six pillow aioconsole hypercorn googlesearch-python markdownify
+```
 
-6. **Command Line Interface**: The module includes a command line interface (CLI) that allows you to interact with the browser, view statistics, purge the cache, restart the server, and shut down the server.
+Then, set the required environment variables in a `.env` file:
 
-## Implementation Details
+```
+API_KEY=<your_google_custom_search_api_key>
+CX=<your_custom_search_cx>
+OPENAI_API_KEY=<your_openai_api_key>
+```
 
-The "Web Requests" module is implemented in Python using the Quart framework, which is a lightweight asynchronous web framework. It uses the `httpx` library for making HTTP requests, `BeautifulSoup` for parsing HTML content, `defusedxml.ElementTree` for parsing XML content, `pdfminer` for extracting text from PDFs, and other libraries for handling various content types.
+Finally, run the plugin using the following command:
 
-The module uses asynchronous programming to handle multiple concurrent requests efficiently. It leverages asyncio, which is a library for writing single-threaded concurrent code using coroutines, multiplexing I/O access over sockets and other resources, running network clients and servers, and other related primitives.
+```bash
+python web_requests.py
+```
 
-The module also includes an in-memory cache for storing previously scraped content and parsed results. The cache is implemented as a dictionary and is protected by locks to ensure thread safety. The cache is periodically cleaned to remove stale entries.
+## Scrape URL Endpoint
 
-## Usage
+**Endpoint:** `/scrape_url`
 
-To use the "Web Requests" module, you need to send HTTP requests to the appropriate endpoints exposed by the server. The following endpoints are available:
+**Method:** `POST`
 
-1. **Scrape URL**: Endpoint: `/scrape_url` (POST)
-   - Parameters:
-     - `url`: The URL of the web page to scrape.
-     - `page` (optional): The page number for pagination (default: 1).
-     - `page_size` (optional): The number of items per page for pagination (default: 10000).
-     - `is_search` (optional): Set to `true` if the URL is a search query (default: `false`).
-     - `follow_links` (optional): Set to `true` if you want to follow links in search results (default: `false`).
-     - `num_results_to_scrape` (optional): The number of search results to scrape (default: 3).
-     - `job_id` (optional): A unique ID for the job (default : generated using UUID).
-     - `refresh_cache` (optional): Set to `true` to bypass the cache and fetch the content again (default: `false`).
-     - `no_strip` (optional): Set to `true` to preserve HTML tags and formatting in the scraped content (default: `false`).
+**Description:** Scrape a URL or perform a Google search and return the content. The content types supported include HTML, PDF, JSON, XML, CSV, and images.
 
-   This endpoint scrapes the content of a web page specified by the URL. It returns the scraped content as text. If the URL is a search query, it performs a Google search and returns the search results.
+**Input Parameters:**
 
-2. **Parse Job**: Endpoint: `/parse_job` (POST)
-   - Parameters:
-     - `job_id`: The ID of the job whose content you want to parse.
-     - `url`: The URL of the web page that was previously scraped.
-     - `regex` (optional): The regex pattern to match against the scraped content.
-     - `page` (optional): The page number for pagination (default: 1).
-     - `page_size` (optional): The number of items per page for pagination (default: 10000).
-     - `parse_id` (optional): A unique ID for the parsing job (default: generated using UUID).
-     - `refresh_cache` (optional): Set to `true` to bypass the cache and fetch the content again (default: `false`).
+- `url` (string, required): The URL to scrape or the search query to perform if `is_search` is set to true.
+- `page` (integer, optional, default: 1): The page number for pagination, based on the chosen `page_size`.
+- `page_size` (integer, optional, default: 10000): The maximum number of characters per page (chunk) for pagination.
+- `is_search` (boolean, optional, default: false): Set to `true` if the input is a search query instead of a URL.
+- `follow_links` (boolean, optional, default: false): Set to `true` to follow links in search results and extract content.
+- `num_results_to_scrape` (integer, optional, default: 3): The number of search results to return if `is_search` is true.
+- `job_id` (string, optional): A unique identifier for the request. If not provided, a UUID will be generated.
 
-   This endpoint parses the content of a previously scraped job using a regex pattern. It returns the matched results.
 
-3. **Well-Known Endpoint**: Endpoint: `/.well-known/ai-plugin.json` (GET)
+- `refresh_cache` (boolean, optional, default: false): Set to `true` to force a cache refresh for the request.
+- `no_strip` (boolean, optional, default: false): Set to `true` to disable content minification.
 
-   This endpoint provides the AI plugin metadata in JSON format.
+**Output:**
 
-4. **OpenAPI Specification**: Endpoint: `/openapi.json` (GET)
+- `success` (boolean): Indicates whether the request was successful.
+- `content` (object): The extracted content in various formats, including HTML, XML, JSON, CSV, PDF, images, and plain text.
+- `error` (string): An error message, if any.
+- `has_more` (boolean): Indicates whether there is more content available for pagination.
+- `job_id` (string): The unique identifier for the request.
+- `cache_age` (integer): The age of the cache in seconds.
+- `page_context` (string): The current page context in the format `current_page/total_pages`.
+- `notice` (string): A system message providing additional context that may help instruct and inform subsequent actions.
 
-   This endpoint provides the OpenAPI specification for the "Web Requests" module.
+**Example Request:**
 
-5. **Logo**: Endpoint: `/logo.png` (GET)
+```json
+{
+  "url": "OpenAI",
+  "is_search": true,
+  "follow_links": false,
+  "num_results_to_scrape": 5
+}
+```
 
-   This endpoint returns the logo image for the "Web Requests" module.
+**Example Response:**
 
-## Environment Variables
+```json
+{
+  "success": true,
+  "content": {
+    "search_results": [
+      {
+        "title": "OpenAI",
+        "link": "https://openai.com/",
+        "description": "OpenAI is an artificial intelligence research laboratory consisting of the for-profit corporation OpenAI LP and its parent company, the non-profit OpenAI Inc."
+      },
+      {
+        "title": "OpenAI - Wikipedia",
+        "link": "https://en.wikipedia.org/wiki/OpenAI",
+        "description": "OpenAI is an artificial intelligence (AI) research laboratory consisting of the for-profit corporation OpenAI LP and its parent company, the non-profit OpenAI Inc."
+      },
+      {
+        "title": "GitHub - openai",
+        "link": "https://github.com/openai",
+        "description": "GitHub is where people build software. More than 73 million people use GitHub to discover, fork, and contribute to over 200 million projects."
+      },
+      {
+        "title": "OpenAI - Home | Facebook",
+        "link": "https://www.facebook.com/openai",
+        "description": "OpenAI, San Francisco, California. 50,772 likes · 1,445 talking about this. We're conducting research to ensure that artificial general intelligence (AGI) benefits all of humanity. We're... "
+      },
+      {
+        "title": "OpenAI - Crunchbase Company Profile & Funding",
+        "link": "https://www.crunchbase.com/organization/openai",
+        "description": "OpenAI is an artificial intelligence research organization that aims to promote and develop friendly AI that benefits humanity as a whole."
+      }
+    ]
+  },
+  "has_more": false,
+  "job_id": "987654",
+  "cache_age": 120,
+  "page_context": "1/1",
+  "notice": ""
+}
+```
 
-The "Web Requests" module uses the following environment variables:
+## Cache Management
 
-- `API_KEY`: Your API key for the Google Custom Search JSON API.
-- `CX`: Your custom search engine ID for the Google Custom Search JSON API.
-- `OPENAI_API_KEY`: Your API key for the OpenAI GPT-3 API.
+The plugin uses an in-memory cache to store request results and improve response times. The cache is cleaned every 2 minutes, removing items older than 15 minutes. The cache size is limited to 200 items.
 
-Make sure to set these environment variables before running the server.
+## Pagination
+
+The plugin supports pagination to handle large amounts of data. The `page` and `page_size` input parameters control the pagination behavior. The default values are 1 and 10000, respectively.
+
+## Input Validation
+
+The plugin validates input parameters to ensure they are valid and within acceptable ranges. The `validate_input` function checks the
+
+ input parameters and returns a boolean value indicating whether the input is valid, along with an error message if the input is invalid.
+
+## Content Handling
+
+The plugin can handle various content types, including HTML, XML, JSON, CSV, PDF, and images. It also supports images and text-based files. The `strip_html` function is used to process HTML content, while other content types are handled by their respective functions.
+
+For images, the plugin returns metadata such as format, size, mode, and image URL. For text-based files, the plugin performs transformations to improve readability.
 
 ## Command Line Interface
 
-The "Web Requests" module includes a command line interface (CLI) that allows you to interact with the browser. The following commands are available:
+The plugin provides a user-friendly command line interface that allows you to interact with the server and perform various tasks. The available commands are:
 
-- `stats`: Displays statistics such as requests per hour and cache information.
-- `purge cache`: Clears the cache.
-- `purge parsed cache`: Clears the parsed cache.
-- `restart`: Restarts the server.
-- `quit`: Shuts down the server.
+- `stats`: Display server statistics, such as requests per hour, cache stats, and ephemeral user requests.
+- `purge cache`: Clear the cache.
+- `restart`: Restart the server.
+- `quit`: Shut down the server.
 
-You can enter these commands in the terminal to perform the corresponding actions.
+To use the command line interface, simply type the desired command and press Enter.
 
-## Conclusion
+## OpenAPI Specification
 
-The "Web Requests" module provides a powerful web browsing capability within ChatGPT. It allows you to scrape web content, parse data, perform Google searches, and execute HTTP requests. The module is designed to be efficient, scalable, and user-friendly, providing a seamless web browsing experience within the ChatGPT environment.
+The Web Requests plugin is accessible through an OpenAPI 3.0.0 specification, which provides a clear and concise way to describe the API service and its available endpoints. This allows developers to understand and interact with the API more effectively. You can find the OpenAPI specification for the Web Requests plugin [here](./openapi.json).
+
+## Best Practices and Usage
+
+1. **Caching:** To reduce server load and improve response times, the plugin caches request results for 15 minutes. When paginating through large content, use the same `job_id` to retrieve content from the cached snapshot of the original request.
+2. **Pagination:** When dealing with large volumes of data, use the `page` and `page_size` parameters to paginate through the content. Be consistent with the `page_size` value when paginating a specific job to ensure accurate page context.
+3. **Input validation:** Validate your input parameters before sending a request to prevent issues with invalid input values and improve the overall stability of the service.
+4. **Error handling:** Always check the `success` property in the response to verify if the request was successful. If an error occurs, handle it gracefully and use the provided error message to resolve the issue.
+5. **Content handling:** Depending on your use case, you might need to process different content types such as HTML, XML, JSON, CSV, PDF, or images. Make sure to handle each content type appropriately and sanitize the content if necessary.
+6. **The 'no_strip' parameter:** Use the `no_strip` parameter when the content structure and formatting are critical to the understanding of the information. Otherwise, rely on the default content processing to preserve context and improve readability for ChatGPT.
+
+By adhering to these best practices and understanding the Web Requests plugin's capabilities, you can effectively use it to retrieve and process web content for your ChatGPT projects.
