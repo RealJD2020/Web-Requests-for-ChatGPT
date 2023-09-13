@@ -15,6 +15,7 @@ Web Requests is a versatile plugin for ChatGPT Plus subscribers that allows user
 - [Command Line Interface](#command-line-interface)
 - [OpenAPI Specification](#openapi-specification)
 - [Best Practices and Usage](#best-practices-and-usage)
+- [Licensing](#licensing)
 
 ## Features
 
