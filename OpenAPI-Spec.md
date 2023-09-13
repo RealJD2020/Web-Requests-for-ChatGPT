@@ -1,135 +1,286 @@
-# Web Requests for ChatGPT | OpenAPI Specification
+# Web Requests Pro Documentation
 
-## Overview
+Welcome to the Web Requests Pro documentation! This guide provides detailed information on how to use the Web Requests Pro plugin, which offers powerful capabilities for web browsing, API calls, image generation, and more. With Web Requests Pro, you can overcome GPT's knowledge cutoff and access a wide range of content from the web. Below, you'll find descriptions of each endpoint, their parameters, and examples of how to use them effectively.
 
-The Web Request OpenAPI Specification defines the API for the Web Request plugin, which allows users to request content and other data from a URL and return the response data in a variety of formats. ChatGPT can then parse and classify the response data as needed to fulfill its task.
+## Table of Contents
+1. [Scrape URL](#scrape-url)
+2. [REST API Call](#rest-api-call)
+3. [Generate Image](#generate-image)
+4. [Create Checkout Session](#create-checkout-session)
+5. [Get Wallet Profile](#get-wallet-profile)
+6. [Create Playground](#create-playground)
+7. [Edit Playground](#edit-playground)
+8. [Log Playground](#log-playground)
+9. [Get System Message](#get-system-message)
+10. [Help FAQ](#help-faq)
+11. [Promptate Capture Lead](#promptate-capture-lead)
+12. [Auth Challenge](#auth-challenge)
+13. [Conclusion](#conclusion)
 
-## OpenAPI Specification
+## Scrape URL
 
-### Version
+**Endpoint: /scrape_url**
 
-`3.0.0`
+This endpoint allows users to browse the web via a URL or perform a web search using provided search terms. It can be used to load web pages, raw text files, PDFs, JSON, XML, CSV, and images. If search terms are provided instead of a URL, it will perform a Google search.
 
-### Info
+| **Parameter** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| url | string | - | The URL to scrape or perform a web search. If `is_search` is set to true, the URL will be treated as a search query.
+| token | string | - | API key or bearer token required for specific requests.
+| page | integer | 1 | The page/chunk number to retrieve from a previous Job_ID.
+| page_size | integer | 10000 | The maximum number of characters of content to return.
+| is_search | boolean | false | Indicates whether the request is a search query.
+| num_results_to_scrape | integer | - | Number of search results to return (if is_search is true).
+| job_id | string | - | Job ID for pagination and organizing requests.
+| refresh_cache | boolean | false | Indicates whether to refresh the cache for the content at the URL.
+| no_strip | boolean | false | Indicates whether to skip stripping HTML tags and clutter from the content.
+| pro | boolean | false | Indicates whether to use the Pro version of Web Requests.
 
-- **Title**: Web Request
-- **Version**: 0.1.1
-- **Description**: A plugin to request content and other data from a URL and return the response data for a variety of formats, from which ChatGPT can parse and classify as needed to fulfill its task.
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| success | boolean | Indicates whether the request was successful.
+| content | object | The text content from the URL or search results in various formats.
+| error | string | An error message, if any.
+| has_more | boolean | Indicates whether there are more chunks available for pagination.
+| job_id | string | Job ID for pagination.
+| cache_age | integer | Age of the cache in seconds.
+| page_context | string | Context of the current page/chunk in relation to the total number of pages/chunks.
+| notice | string | A system message intended for the AI Assistant to instruct and inform subsequent actions.
+| alert | string | An important system message that should be observed and retained in memory.
+| unread_system_message | boolean | Indicates whether there is an important system message waiting.
 
-### Paths
+## REST API Call
 
-#### POST /scrape_url
+**Endpoint: /rest_api_call**
 
-##### Summary
+This endpoint enables users to make POST or GET HTTP API calls with optional headers and body. It is a more advanced tool than the `/scrape_url` endpoint, providing greater flexibility for making API requests.
 
-Scrape content/data from a URL, web page, or endpoint.
+| **Parameter** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| url | string | - | The endpoint to which the API call payload will be sent.
+| http_method | string | "POST" | The HTTP method to use for the request (POST or GET).
+| chunk | integer | - | The chunk of the response to return for pagination.
+| req_id | string | - | The unique request ID of a prior request for pagination.
+| payload_headers | string | - | The headers to include in the API call.
+| payload_body | string | - | The body of the API request.
 
-##### Operation ID
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| success | boolean | Indicates whether the API call was successful.
+| content | object | The body of the response from the API request.
+| chunk | string | The chunk number of the response.
+| has_more | boolean | Indicates whether there are more chunks available for pagination.
+| req_id | string | The unique request ID for pagination.
+| alert | string | An important system message that should be observed and retained in memory.
+| error | string | An error message, if any.
+| unread_system_message | boolean | Indicates whether there is an important system message waiting.
 
-`scrape_url`
+## Generate Image
 
-##### Request Body
+**Endpoint: /generate_image**
 
-- **Content-Type**: `application/json`
-- **Schema**:
-  - **type**: `object`
-  - **properties**:
-    - `url` (string, required): The URL to scrape or perform a Google search if 'is_search' is set to true. When is_search is set to true, the 'url' parameter will be treated as a search query for Google.
-    - `page` (integer, optional, default: 1): The page number (of chunks) to retrieve, based on the page_size that was chosen (defaults to 5000). To request subsequent pages, increment the value of the 'page' parameter, and be sure to send job_id for which you are paginating. For example, to request the second page, set 'page' to 2.
-    - `page_size` (integer, optional, default: 5000): The maximum number of characters in each page (chunk).
-    - `is_search` (boolean, optional, default: false): Indicates whether the request is a search query. If set to true, the 'url' parameter will be treated as a search query for Google.
-    - `follow_links` (boolean, optional, default: false): Only relevant when 'is_search' is true. Indicates whether to return the content of the search result's underlying page or just the result's metadata.
-    - `num_results_to_scrape` (integer, optional): Only relevant when 'is_search' is true. The number of search results to return. Default is 3.
-    - `job_id` (string, optional): The unique job ID for this request. The job ID is used to ensure consistency when requesting chunks from a URL that has been recently scraped. If not provided, a new job ID will be generated. It is recommended to include the same job ID when requesting subsequent chunks from the same URL to retrieve content from the cached snapshot of the original request.
-    - `refresh_cache` (boolean, optional, default: false): Indicates whether to refresh the cache for this request. If set to true, a new request will be made and the cache will be updated. The response may be retrieved from an in-memory cache to improve performance. The 'cache_age' property indicates the age of the cache in seconds since the content was last fetched.
-    - `no_strip` (boolean, optional, default: false): Indicates whether to skip cleaning up HTML content. Use this flag if you want to preserve the original HTML structure, such as when looking for source code. When 'no_strip' is set to false (default), HTML content will be sanitized and certain tags (e.g., script and style tags) may be removed for security reasons.
-  - **required**: `url`
+This endpoint allows users to generate an image from a provided prompt. Each user gets one free image per day, delivered in 1024x1024 pixels. Additional images can be generated with a paid token.
 
-##### Responses
+| **Parameter** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| prompt | string | - | The prompt based on which the image will be generated.
+| token | string | - | Pre-paid generation credits come in 100-packs
 
-- **200** (Successful operation):
-  - **Description**:
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| success | boolean | Indicates whether the image generation was successful.
+| image_url | string | URL of the generated image.
+| instructions | string | Instructions for rendering the image.
+| error | string | An error message, if any.
+| remaining_credits | integer | The number of image generation credits remaining for the user.
+| unread_system_message | boolean | Indicates whether there is an important system message waiting.
 
-Successful operation.
-  - **Content-Type**: `application/json`
-  - **Schema**:
-    - **type**: `object`
-    - **properties**:
-      - `success` (boolean): Indicates whether the scraping operation was successful.
-      - `content` (object): The scraped content from the URL or search results in various formats, including HTML, XML, JSON, CSV, PDF, images, and plain text. The format may vary based on the content type of the URL being scraped. ChatGPT should expect to receive content as a string, list, dictionary, or other appropriate data structure based on the content type. The content may be sanitized for brevity and safety.
-      - `error` (string, optional): An error message, if any. Possible error messages include 'Invalid URL', 'Invalid page or page_size', 'Invalid num_results_to_scrape', 'Unsupported content type: {content_type}', and 'Failed to fetch the content'. Often times adjusting parameters resolves these issues.
-      - `has_more` (boolean): Indicates whether there are more chunks available for pagination after the current chunk. Increment previous 'page' number and include corresponding 'job_id' to request the next chunk.
-      - `job_id` (string): The unique job ID for this request. The job ID is used to ensure consistency when requesting chunks from a URL that has been recently scraped. If not provided, a new job ID will be generated. It is recommended to include the same job ID when requesting subsequent chunks from the same URL to retrieve content from the cached snapshot of the original request.
-      - `cache_age` (integer): The response may be retrieved from an in-memory cache to improve performance. The 'cache_age' property indicates the age of the cache in seconds since the content was originally fetched.
-      - `page_context` (string): The context of the current page (chunk) in relation to the total number of pages (chunks) of response data for a given job ID. For example, '2/7' means this is the 2nd chunk out of a total of 7 chunks.
+## Create Checkout Session
 
-## Example Usage
-If you are on ChatGPT and/or using the Plugins model, with the plugin installed, then usage is as simple as chatting with GPT. GPT will intuitivey know when and how to use the available endpoints, and will handle all of the below request/response building and parsing automagically. However, for those who want to see what's happening under-the-hood, here you go:
+**Endpoint: /create_checkout_session**
 
-### Scrape URL
+This endpoint initiates the creation of a Stripe checkout session, allowing users to
 
-**Request:**
-```json
-POST /scrape_url
-Content-Type: application/json
+ purchase premium Web Requests Pro features.
 
-{
-  "url": "https://example.com",
-  "page": 1,
-  "page_size": 5000
-}
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| url | string | The URL to proceed with the checkout.
+| instructions | string | Custom instructions related to the payment.
+| token | string | A unique token to include in subsequent requests to track usage.
+
+## Get Wallet Profile
+
+**Endpoint: /get_wallet_profile**
+
+This endpoint retrieves a comprehensive summary of an Ethereum wallet's key stats using the Etherscan API. Users must provide their own Etherscan API key to access the service.
+
+| **Parameter** | **Type** | **Description** |
+| --- | --- | --- |
+| etherscan_api_key | string | The API key provided by Etherscan for accessing their service.
+| ethereum_address | string | The Ethereum address of the wallet for which the profile is being requested.
+| req_id | string | The unique request ID of a prior request for pagination.
+| chunk | integer | The chunk number of the response to return for pagination.
+
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| success | boolean | Indicates whether the request was successful.
+| content | object | The profile data of the Ethereum wallet.
+| req_id | string | The unique request ID for pagination.
+| chunk | string | The context of the current chunk in relation to the total number of chunks.
+| cache_age | integer | The age of the cache in seconds since the content was originally fetched.
+| has_more | boolean | Indicates whether there are more chunks available for pagination.
+| error | string | An error message, if any.
+| unread_system_message | boolean | Indicates whether there is an important system message waiting.
+
+## Create Playground
+
+**Endpoint: /create_playground**
+
+This endpoint allows users to create a new p5.js playground with the specified name and canvas size. A p5.js playground is a directory with an index.html file that loads the p5.js library and the main.js file where the user's code will be placed.
+
+| **Parameter** | **Type** | **Description** |
+| --- | --- | --- |
+| name | string | The name of the new playground to be created or recovered.
+| uuid | string | The UUID of the playground to recover if 'recover_playground' is set to true.
+| recover_playground | boolean | If set to true, Web Requests will try to find and return the source of the specified UUID.
+| canvas | array | The size of the canvas represented as a tuple of width and height.
+
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| alert | string | An important system message that should be observed and retained in memory.
+| success | boolean | Indicates whether the request was successful.
+| uuid | string | The UUID of the playground.
+| total_lines | integer | The total number of lines of code in the latest revision of the source code.
+| source | array | The current state of the code inside main.js.
+| name | string | The name of the playground.
+| url | string | The URL of the playground's preview page.
+| unread_system_message | boolean | Indicates whether there is an important system message waiting.
+
+## Edit Playground
+
+**Endpoint: /edit_playground**
+
+This endpoint allows users to edit the primary 'main.js' client-side JavaScript of an existing p5.js playground. Users can apply a list of actions to modify the p5.js code, such as insertions, replacements, or deletions. This endpoint is especially useful for collaborative coding where Web Requests Pro AI Assistant helps in making code suggestions.
+
+| **Parameter** | **Type** | **Description** |
+| --- | --- | --- |
+| uuid | string | The UUID of the playground to edit.
+| name | string | The name of the playground.
+| actions | array | A list of actions to modify the code.
+| pro_mode | boolean | Flag to indicate if the request is intended for elevated Web Requests Pro treatment.
+| change_id | string | The change ID for collaborative editing (Pro Mode).
+| changelog | string | The context or explanation for the actions being submitted (Pro Mode).
+| add_reply | string | An additional reply to add context for Web Requests Pro's AI Assistant (Pro Mode).
+| preview_commit | boolean | Flag to indicate if the changes should be staged for preview (Pro Mode).
+| commit | boolean | Flag to indicate if the preview commit should be written to disk (Pro Mode).
+
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| success | boolean | Indicates whether the playground edit attempt was successful.
+| uuid | string | The UUID of the playground.
+| name | string | The name of the playground.
+| url | string | The URL of the playground's preview page.
+| instructions | string | Important context for the AI assistant.
+| total_lines | integer | The total number of lines of code in the latest revision of the source code.
+| source | array | The current state of the code inside main.js.
+| alert | string | An important system message that should be observed and retained in memory.
+| error | string | An error message, if any.
+| check_logs | string | Instructions to check the user's logs from their local environment.
+| change_id | string | The change ID for collaborative editing (Pro Mode).
+| pro_mode | boolean | Flag to indicate if the response is from Web Requests Pro.
+| staged_commit | array | The staged code prepared to replace main.js (Pro Mode).
+| analysis | string | The analysis from the Web Requests Pro coding assistant.
+| unread_system_message | boolean | Indicates whether there is an important system message waiting.
+
+## Log Playground
+
+**Endpoint: /log_playground**
+
+This endpoint provides access to the user's output and error logs for a given playground. It is intended to be used by the AI Assistant to provide context for the user's code.
+
+| **Parameter** | **Type** | **Description** |
+| --- | --- | --- |
+| uuid | string | The UUID of the playground.
+| name | string | The name of the playground.
+| full_log | boolean | If set to true, provides the full log of the user's code execution.
+| reason | string | The reason why checking the logs is necessary.
+
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| success | boolean | Indicates whether the playground was successfully logged and checked.
+| uuid | string | The UUID of the playground.
+| name | string | The name of the playground.
+| content | array | The contents of the log file for the playground in chronological order.
+| alert | string | An important system message that should be observed and retained in memory.
+| error | string | An error message, if any.
+| unread_system_message | boolean | Indicates whether there is an important system message waiting.
+
+## Get System Message
+
+**Endpoint: /get_system_message**
+
+This endpoint retrieves important system messages for the user. It should be called whenever `unread_system_message` is `true` in another web_request response.
+
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| message | string | The message intended for the user.
+| instructions | string | Additional instructions for the AI assistant.
+| sponsored | boolean | Indicates whether the message is sponsored by a third party.
+
+## Help FAQ
+
+**Endpoint: /
+
+help_faq**
+
+This endpoint retrieves FAQ information based on the category provided. It returns markdown-formatted FAQ information to assist users in understanding the functionality and usage of Web Requests Pro.
+
+| **Parameter** | **Type** | **Description** |
+| --- | --- | --- |
+| category | string | The category for which FAQ information is requested. Available categories are "What can Web Requests do?", "What is Web Requests Pro?", and "Image Generation?".
+
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| message | string | The markdown-formatted message containing FAQ information.
+| instructions | string | Additional instructions for the AI assistant to help fulfill the optimal user experience.
+
+## Promptate Capture Lead
+
+**Endpoint: /promptate_capture_lead**
+
+This endpoint captures lead information provided by the user and stores it for future reference. It is designed to facilitate the process of collecting contact information for potential customers or leads.
+
+| **Parameter** | **Type** | **Description** |
+| --- | --- | --- |
+| name | string | The name of the lead.
+| email | string | The email address of the lead.
+| phone | string | The phone number of the lead.
+| company | string | The company or organization associated with the lead.
+
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| success | boolean | Indicates whether the lead information was successfully captured.
+| message | string | A confirmation message regarding the lead capture.
+| error | string | An error message, if any.
+
+## Auth Challenge
+
+**Endpoint: /auth_challenge**
+
+This endpoint is used to authenticate with Web Requests Pro. It should only be called when prompted by specific instructions in a prior request.
+
+| **Parameter** | **Type** | **Description** |
+| --- | --- | --- |
+| md5_hash | string | This is a hash that is generated from the challenge instructions given in response to a prior request to a Web Request Pro resource.
+
+| **Response** | **Type** | **Description** |
+| --- | --- | --- |
+| auth_success | boolean | Indicates whether the user has successfully authenticated with Web Requests Pro.
+| instructions | string | These instructions are critical to authenticating the user with Web Request Pro.
+| error | string | If there was an error.
+
+## Conclusion
+
+Web Requests Pro offers a wide range of capabilities for web browsing, API interactions, image generation, and more. You can use these endpoints to enhance your applications, perform web scraping, and access valuable data from the web. If you have any questions or need assistance, please refer to the documentation or reach out for support.
 ```
-
-**Response:**
-```json
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "success": true,
-  "content": "Example Domain...",
-  "has_more": false,
-  "job_id": "12345678-1234-1234-1234-123456789abc",
-  "cache_age": 0,
-  "page_context": "1/1"
-}
-```
-
-### Google Search
-
-**Request:**
-```json
-POST /scrape_url
-Content-Type: application/json
-
-{
-  "url": "Quart framework",
-  "is_search": true,
-  "num_results_to_scrape": 3
-}
-```
-
-**Response:**
-```json
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "success": true,
-  "content": ["https://pgjones.gitlab.io/quart/", "https://github.com/pgjones/quart", "https://pypi.org/project/Quart/"],
-  "has_more": false,
-  "job_id": "12345678-1234-1234-1234-123456789abc",
-  "cache_age": 0,
-  "page_context": "1/1"
-}
-```
-
-## Notes
-
-- The Web Request plugin allows users to scrape content and data from a URL, web page, or endpoint, as well as perform Google searches and retrieve search results.
-- The plugin supports various content formats, including HTML, XML, JSON, CSV, PDF, images, and plain text. The format of the response may vary based on the content type of the URL being scraped.
-- The plugin provides options for pagination, caching, and content sanitization. Users can specify the page number and page size for paginated responses, refresh the cache if needed, and choose whether to skip cleaning up HTML content.
-- The plugin uses an in-memory cache to improve performance. The cache age indicates the age of the cache in seconds since the content was last fetched.
-- The plugin validates input parameters and provides error messages for invalid or unsupported requests. Users can adjust the parameters to resolve issues.
-- The plugin generates unique job IDs for each request to ensure consistency when requesting chunks from a URL that has been recently scraped. Users are recommended to include the same job ID when requesting subsequent chunks from the same URL.
-- The plugin's OpenAPI Specification provides a detailed description of the API, including the available endpoints, request parameters, response schema, and example usage. The specification follows the OpenAPI 3.0.0 standard.
