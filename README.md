@@ -1,6 +1,6 @@
 # 'Web Requests' :: ChaGPT's Web Browser
 
-Web Requests is a versatile plugin for ChatGPT Plus subscribers that allows users to access and parse content from the web, overcoming the "September 2021 Knowledge Cutoff." The plugin is built as an API service layer backend using the Quart server and is accessible via the provided [OpenAPI specification](https://github.com/RealJD2020/Web-Requests-for-ChatGPT/blob/c28137654fc02e0361e1b5c035c2c74757844543/OpenAPI-Spec.md), specifically optimized for ChatGPT's Plugins model. (GPT built it 🤖)
+[Web Requests](https://plugin.wegpt.ai/) is a versatile plugin for ChatGPT Plus subscribers that allows users to access and parse content from the web, overcoming the "September 2021 Knowledge Cutoff." The plugin is built as an API service layer backend using the Quart server and is accessible via the provided [OpenAPI specification](https://github.com/RealJD2020/Web-Requests-for-ChatGPT/blob/c28137654fc02e0361e1b5c035c2c74757844543/OpenAPI-Spec.md), specifically optimized for ChatGPT's Plugins model. (GPT built it 🤖)
 
 ## Table of Contents
 
