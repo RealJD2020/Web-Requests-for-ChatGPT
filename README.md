@@ -1,10 +1,11 @@
 # 'Web Requests' :: ChaGPT's Web Browser
 
-Web Requests is a versatile plugin for ChatGPT Plus subscribers that allows users to access and parse content from the web, overcoming the "September 2021 Knowledge Cutoff." The plugin is built as an API service layer backend using the Quart server and is accessible via the provided OpenAPI specification, specifically designed for ChatGPT's Plugins model.
+Web Requests is a versatile plugin for ChatGPT Plus subscribers that allows users to access and parse content from the web, overcoming the "September 2021 Knowledge Cutoff." The plugin is built as an API service layer backend using the Quart server and is accessible via the provided [OpenAPI specification](https://github.com/RealJD2020/Web-Requests-for-ChatGPT/blob/c28137654fc02e0361e1b5c035c2c74757844543/OpenAPI-Spec.md), specifically optimized for ChatGPT's Plugins model. (GPT built it 🤖)
 
 ## Table of Contents
 
 - [Features](#features)
+- [Web Requests Pro](#web-requests-pro)
 - [Installation](#installation)
 - [Scrape URL Endpoint](#scrape-url-endpoint)
 - [Cache Management](#cache-management)
@@ -17,16 +18,42 @@ Web Requests is a versatile plugin for ChatGPT Plus subscribers that allows user
 
 ## Features
 
-- Scrape URLs and extract content
-- Perform Google searches and return search results
-- Follow links and extract content from search results
-- Cache results to reduce server load and improve response times
-- Paginate content to handle large amounts of data
-- Validate input parameters
-- Handle various content types, including HTML, XML, JSON, CSV, PDF, and images
-- Support for images and text-based files
-- Content processing for context preservation
-- User-friendly command line interface
+### Core Features
+
+- **Scrape URLs and Extract Content**: Retrieve data from any accessible website.
+- **Perform Google Searches**: Get search results directly in your ChatGPT conversation.
+- **Follow Links**: Navigate through search results and extract additional content.
+- **Cache Management**: Reduce server load and improve response times with intelligent caching.
+- **Pagination**: Easily navigate through large sets of data.
+- **Input Validation**: Ensure the integrity and safety of your requests.
+- **Content Handling**: Process various types of content, including HTML, XML, JSON, CSV, PDF, and images.
+- **User-Friendly Command Line Interface**: Interact with the plugin through a simple and intuitive CLI.
+
+### New Features
+
+- **Image Generation**: Turn your text prompts into visual art, perfect for blog headers, game assets, or just for fun.
+- **Playground**: A sandbox environment for coding, game development, and art creation.
+
+![Image Generation In ChatGPT!](https://plugin.wegpt.ai/static/files/img-gen.jpg)
+
+## Web Requests Pro
+
+For a subscription fee of $8.88/month, Web Requests Pro offers the following premium features:
+
+- **Unlimited Web Requests**: No more limitations on the number of web requests you can make.
+- **Unlimited Playground Sessions**: Create as many playgrounds as you like for coding, game development, and more.
+- **Priority Search Engine Requests**: Get faster and more reliable search results.
+- **100 Image Generations per Month**: Generate up to 100 images per month to bring your creative ideas to life.
+- **Pro Mode in Playground**: Access advanced features in the Playground, including customizable autonomous AI agents.
+
+![Pro Mode Example](https://plugin.wegpt.ai/static/files/pro-mode.gif)
+
+### Coming Soon to Web Requests Pro
+
+- **WeGPT.ai Early Access**: Get early access to collaborative ChatGPT features.
+- **Video Generation and Editing**: Create and edit videos right within your ChatGPT conversation.
+- **AI Writing Assistant**: Enhance your writing with AI-powered suggestions and corrections.
+- **AI Image Editing**: Edit images using advanced AI algorithms.
 
 ## Installation
 
