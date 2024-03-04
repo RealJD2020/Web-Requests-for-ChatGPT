@@ -1,4 +1,4 @@
-# Web Requests Pro Documentation
+# Web Requests Documentation
 
 Welcome to the Web Requests Pro documentation! This guide provides detailed information on how to use the Web Requests Pro plugin, which offers powerful capabilities for web browsing, API calls, image generation, and more. With Web Requests Pro, you can overcome GPT's knowledge cutoff and access a wide range of content from the web. Below, you'll find descriptions of each endpoint, their parameters, and examples of how to use them effectively.
 
