@@ -540,6 +540,10 @@
                       "type": "string",
                       "description": "This is the URL of this playground's preview page."
                     },
+                    "instructions": {
+                      "type": "string",
+                      "description": "Instructions for the LLM / AI Assistant to help you fulfill the user's request."
+                    },
                     "unread_system_message": {
                       "type": "boolean",
                       "description": "This property indicates whether there is an **important** system message waiting for you. If set to 'true', you should finish the prepared response to your user, and then immediately dispatch an automated request to web_requests.get_system_message.",
